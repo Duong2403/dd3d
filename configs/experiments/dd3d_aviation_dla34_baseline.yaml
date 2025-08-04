@@ -1,0 +1,61 @@
+# @package _global_
+
+defaults:
+  - /backbones: dla34
+  - /train_datasets: aviation_train
+  - /test_datasets: aviation_val
+  - /evaluators: aviation_3d_evaluator
+  - /visualizers: aviation_3d_visualizer
+
+# Aviation-specific configurations
+DATASETS:
+  TRAIN: ["aviation_train"]
+  TEST: ["aviation_val"]
+  CATEGORY_NAMES: ["aircraft"]
+
+# Adjusted for aviation domain
+SOLVER:
+  CLIP_GRADIENTS:
+    ENABLED: True
+    CLIP_VALUE: 35.0
+  BASE_LR: 1e-4  # Lower LR for fine-tuning
+  IMS_PER_BATCH: 16  # Smaller batch for memory efficiency
+  MAX_ITER: 50000   # More iterations for convergence
+  
+# Aviation-specific model parameters
+MODEL:
+  DD3D:
+    # Adjusted for long-range detection
+    MIN_DEPTH: 50.0   # Minimum 50m
+    MAX_DEPTH: 1500.0 # Maximum 1.5km
+    
+    # Scale-aware settings
+    BBOX_HEAD:
+      CENTERNESS_ON_REG: True
+      PRIOR_PROB: 0.1  # Lower prior for rare objects
+      
+    DEPTH_HEAD:
+      MIN_DEPTH_LOG: 3.91  # log(50)
+      MAX_DEPTH_LOG: 7.31  # log(1500)
+      
+# Augmentation for small objects
+INPUT:
+  MIN_SIZE_TRAIN: [512, 576, 640, 704, 768, 832, 896, 960, 1024]
+  MAX_SIZE_TRAIN: 1333
+  MIN_SIZE_TEST: 800
+  MAX_SIZE_TEST: 1333
+  
+  # Aviation-specific augmentations
+  BRIGHTNESS: 0.1
+  CONTRAST: 0.1
+  SATURATION: 0.1
+  HUE: 0.05
+
+# Evaluation settings
+TEST:
+  IMS_PER_BATCH: 8
+  EVAL_PERIOD: 2500
+
+# Output configuration  
+OUTPUT_DIR: "./output/aviation_baseline"
+EXPERIMENT_NAME: "dd3d_aviation_dla34_baseline"
